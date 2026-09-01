@@ -1,20 +1,14 @@
+import CinematicIntro from "@/components/CinematicIntro";
 import Hero from "@/components/Hero";
-//import CinematicIntro from "@/components/CinematicIntro";
 
 export default function Home() {
   return (
-    <main className="relative w-full bg-[#050505] min-h-screen">
-      {/* 
-        Commented out the cinematic intro temporarily so we can verify 
-        the portrait is rendering perfectly without waiting 5 seconds.
-        Remove the // to turn it back on later!
-      */}
-      {/* <CinematicIntro /> */}
+    <main className="relative w-full bg-[#050505]">
+      {/* Page 1: Scroll-driven interactive headline sequence */}
+      <CinematicIntro />
       
+      {/* Page 2: The Particle Constellation Portrait & Lens Reveal */}
       <Hero />
-      
-      {/* A temporary spacer to allow you to scroll and test the dissolve */}
-      <div className="h-screen w-full bg-[#050505]" />
     </main>
   );
 }

@@ -1,14 +1,15 @@
 import CinematicIntro from "@/components/CinematicIntro";
 import Hero from "@/components/Hero";
+import Dashboard from "@/components/Dashboard";
+import Archive from "@/components/Archive";
 
 export default function Home() {
   return (
-    <main className="relative w-full bg-[#050505]">
-      {/* Page 1: Scroll-driven interactive headline sequence */}
+    <main className="relative w-full bg-[#050505] min-h-screen">
       <CinematicIntro />
-      
-      {/* Page 2: The Particle Constellation Portrait & Lens Reveal */}
       <Hero />
+      <Dashboard />
+      <Archive />
     </main>
   );
 }

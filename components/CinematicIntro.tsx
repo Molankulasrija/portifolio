@@ -8,6 +8,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function CinematicIntro() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const pinRef = useRef<HTMLDivElement>(null);
   const text1Ref = useRef<HTMLHeadingElement>(null);
   const text2Ref = useRef<HTMLHeadingElement>(null);
   const nameRef = useRef<HTMLHeadingElement>(null);
@@ -16,7 +17,7 @@ export default function CinematicIntro() {
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({
         scrollTrigger: {
-          trigger: containerRef.current,
+          trigger: pinRef.current,
           start: "top top",
           end: "+=3000", // Scroll distance required to complete the intro sequence
           scrub: true,   // Direct coupling to the mouse wheel / scrollbar
@@ -45,24 +46,26 @@ export default function CinematicIntro() {
   }, []);
 
   return (
-    <div
-      ref={containerRef}
-      className="relative h-screen w-full flex items-center justify-center bg-[#050505] text-white overflow-hidden"
-    >
-      <div className="relative flex flex-col items-center justify-center h-[200px] w-full text-center px-4">
-        
-        <h2 className="absolute text-xl md:text-3xl font-mono tracking-[0.2em] text-zinc-400">
-          <span ref={text1Ref} className="block">SOFTWARE ENGINEER & ARCHITECT</span>
-        </h2>
+    <div ref={containerRef} className="relative w-full">
+      <div
+        ref={pinRef}
+        className="relative h-screen w-full flex items-center justify-center bg-[#050505] text-white overflow-hidden"
+      >
+        <div className="relative flex flex-col items-center justify-center h-[200px] w-full text-center px-4">
+          
+          <h2 className="absolute text-xl md:text-3xl font-mono tracking-[0.2em] text-zinc-400">
+            <span ref={text1Ref} className="block">SOFTWARE ENGINEER & ARCHITECT</span>
+          </h2>
 
-        <h2 className="absolute text-lg md:text-2xl font-mono tracking-[0.2em] text-zinc-300">
-          <span ref={text2Ref} className="block">DISTRIBUTED SYSTEMS & WEBGL</span>
-        </h2>
+          <h2 className="absolute text-lg md:text-2xl font-mono tracking-[0.2em] text-zinc-300">
+            <span ref={text2Ref} className="block">DISTRIBUTED SYSTEMS & WEBGL</span>
+          </h2>
 
-        <h1 className="absolute text-5xl md:text-8xl font-bold tracking-tight uppercase w-full text-white">
-          <span ref={nameRef} className="block">SRIJA MOLANKULA</span>
-        </h1>
-        
+          <h1 className="absolute text-5xl md:text-8xl font-bold tracking-tight uppercase w-full text-white">
+            <span ref={nameRef} className="block">SRIJA MOLANKULA</span>
+          </h1>
+          
+        </div>
       </div>
     </div>
   );

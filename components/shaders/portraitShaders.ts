@@ -4,8 +4,10 @@ export const vertexShader = `
   uniform vec3 uMouse;     
   uniform float uHover;    
   uniform float uDissolve; 
+  uniform float uMorph; 
   
   attribute vec3 targetPosition; 
+  attribute vec3 spherePosition; 
   attribute vec3 color;          
   
   varying vec3 vColor;
@@ -22,41 +24,53 @@ export const vertexShader = `
   }
 
   void main() {
-    vColor = color;
+    vColor = color; 
     
     vSizeMultiplier = random(vec3(12.9898, 78.233, 151.7182), 0.0) * 0.4 + 0.8;
     
+    vec3 currentTarget = mix(targetPosition, spherePosition, uMorph);
+    
     vec3 drift = position + curl(position + uTime * 0.15) * 0.5;
-    vec3 swirlPath = mix(drift, targetPosition + curl(targetPosition) * 1.5, uProgress);
-    vec3 basePos = mix(swirlPath, targetPosition, smoothstep(0.8, 1.0, uProgress));
+    vec3 swirlPath = mix(drift, currentTarget + curl(currentTarget) * 1.5, uProgress);
+    vec3 basePos = mix(swirlPath, currentTarget, smoothstep(0.8, 1.0, uProgress));
 
-    // THE LENS REVEAL MATH
     float dist = distance(basePos.xy, uMouse.xy); 
     float lensRadius = 1.8; 
     float lensFactor = 1.0 - smoothstep(lensRadius - 0.2, lensRadius, dist);
-    vInLens = lensFactor * uHover; 
+    vInLens = lensFactor * uHover * (1.0 - uMorph); 
     
-    // Simply snap the floating particles exactly back to the real photograph's grid
-    vec3 zenithPos = mix(basePos, targetPosition, vInLens);
+    vec3 zenithPos = mix(basePos, currentTarget, vInLens);
 
-    // Dissolve Math
     vec3 explodeDir = normalize(zenithPos) + curl(zenithPos * 2.0);
     explodeDir.y += 1.5; 
     float speedMap = random(vec3(45.164, 12.9898, 78.233), 0.0);
     vec3 finalPos = mix(zenithPos, zenithPos + (explodeDir * 15.0 * (speedMap + 0.5)), uDissolve);
 
+    // Apply rotation ONLY to the sphere state
+    float angle = uTime * 0.1 * uMorph;
+    mat2 rotY = mat2(cos(angle), -sin(angle), sin(angle), cos(angle));
+    finalPos.xz = rotY * finalPos.xz;
+
     vec4 mvPosition = modelViewMatrix * vec4(finalPos, 1.0);
     gl_Position = projectionMatrix * mvPosition;
 
     float depth = -mvPosition.z; 
-    
-    // FIX: Keep the particle size EXACTLY the same inside and outside the lens.
-    // This entirely prevents the white blow-out.
     gl_PointSize = (13.0 / depth) * vSizeMultiplier; 
     
-    vAlpha = smoothstep(14.0, 6.0, depth) * (1.0 - uDissolve);
+    // ==========================================
+    // THE HEMISPHERE FIX
+    // ==========================================
+    // 1. Portrait Alpha: Uses the original strict camera depth limit
+    float portraitAlpha = smoothstep(14.0, 6.0, depth);
+    
+    // 2. Sphere Alpha: Uses the 3D Z-coordinate (-4.5 to 4.5). 
+    // The front is 1.0 (bright), the back is 0.2 (dimmed but visible).
+    float sphereAlpha = smoothstep(-5.0, 5.0, finalPos.z) * 0.8 + 0.2;
+    
+    // 3. Blend between them smoothly as the scroll morph happens
+    vAlpha = mix(portraitAlpha, sphereAlpha, uMorph) * (1.0 - uDissolve);
   }
-`;
+`;  
 
 export const fragmentShader = `
   varying vec3 vColor;
@@ -75,7 +89,7 @@ export const fragmentShader = `
     float halo = 1.0 - smoothstep(0.0, 1.0, radius);       
     float softness = mix(halo, core, 0.5);
 
-    // FIX: Keep the light and brightness identical everywhere
+    // Keep the light and brightness identical everywhere
     vec3 finalColor = vColor * 2.0;
 
     // Inside the lens, we remove the glowing gradient to reveal the flat, real picture,

@@ -55,7 +55,10 @@ export const vertexShader = `
     gl_Position = projectionMatrix * mvPosition;
 
     float depth = -mvPosition.z; 
-    gl_PointSize = (13.0 / depth) * vSizeMultiplier; 
+    
+    // Smoothly transition point size: Large (30.0) for portrait formation, Crisp dots (5.0) for Sphere
+    float basePointSize = mix(30.0, 5.0, uMorph);
+    gl_PointSize = (basePointSize / depth) * vSizeMultiplier; 
     
     // ==========================================
     // THE HEMISPHERE FIX
@@ -63,9 +66,9 @@ export const vertexShader = `
     // 1. Portrait Alpha: Uses the original strict camera depth limit
     float portraitAlpha = smoothstep(14.0, 6.0, depth);
     
-    // 2. Sphere Alpha: Uses the 3D Z-coordinate (-4.5 to 4.5). 
-    // The front is 1.0 (bright), the back is 0.2 (dimmed but visible).
-    float sphereAlpha = smoothstep(-5.0, 5.0, finalPos.z) * 0.8 + 0.2;
+    // 2. Sphere Alpha: High enough to clearly see the sphere shape, low enough not to block Skill Nodes
+    // Max opacity 60% at the front, 15% at the back
+    float sphereAlpha = smoothstep(-5.0, 5.0, finalPos.z) * 0.6 + 0.15;
     
     // 3. Blend between them smoothly as the scroll morph happens
     vAlpha = mix(portraitAlpha, sphereAlpha, uMorph) * (1.0 - uDissolve);
@@ -73,6 +76,8 @@ export const vertexShader = `
 `;  
 
 export const fragmentShader = `
+  uniform float uMorph;
+  
   varying vec3 vColor;
   varying float vAlpha;
   varying float vSizeMultiplier;
@@ -89,13 +94,16 @@ export const fragmentShader = `
     float halo = 1.0 - smoothstep(0.0, 1.0, radius);       
     float softness = mix(halo, core, 0.5);
 
-    // Keep the light and brightness identical everywhere
-    vec3 finalColor = vColor * 2.0;
+    // Dynamically adjust brightness: High (1.4) for flat portrait, Elegant ambient (0.7) for sphere
+    float brightnessBoost = mix(1.4, 0.7, uMorph);
+    vec3 finalColor = vColor * brightnessBoost;
 
-    // Inside the lens, we remove the glowing gradient to reveal the flat, real picture,
-    // but we cap it at 0.8 so the additive blending doesn't blow out to pure white.
-    float finalSoftness = mix(softness, 0.8, vInLens);
+    // Inside the lens, we reveal the solid picture
+    float finalSoftness = mix(softness, 1.0, vInLens);
     float finalAlpha = finalSoftness * vAlpha; 
+    
+    // Discard completely invisible pixels to optimize rendering speed
+    if (finalAlpha < 0.02) discard;
 
     gl_FragColor = vec4(finalColor, finalAlpha);
   }

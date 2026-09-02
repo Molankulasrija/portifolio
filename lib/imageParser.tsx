@@ -41,17 +41,23 @@ export const parseImageToParticles = (
 
           const pixelIndex = (y * width + x) * 4;
           
-          const r = imageData[pixelIndex] / 255;
-          const g = imageData[pixelIndex + 1] / 255;
-          const b = imageData[pixelIndex + 2] / 255;
+          // Increase brightness by multiplying RGB by a factor (clamped to 1.0 to avoid over-saturation artifacts)
+          const brightness = 1.8;
+          const r = Math.min(1.0, (imageData[pixelIndex] / 255) * brightness);
+          const g = Math.min(1.0, (imageData[pixelIndex + 1] / 255) * brightness);
+          const b = Math.min(1.0, (imageData[pixelIndex + 2] / 255) * brightness);
           const a = imageData[pixelIndex + 3] / 255;
 
           // Skip transparent or pure black pixels to save GPU rendering power
           if (a < 0.1 || (r < 0.05 && g < 0.05 && b < 0.05)) continue;
 
+          // Add a random jitter to x and y to eliminate perfect grid patterns
+          const jitterX = (Math.random() - 0.5) * step;
+          const jitterY = (Math.random() - 0.5) * step;
+
           // Map 2D Canvas to 3D WebGL Space
-          const webglX = ((x / width) - 0.5) * 10;
-          const webglY = -((y / height) - 0.5) * (10 * (height / width)); 
+          const webglX = (((x + jitterX) / width) - 0.5) * 10;
+          const webglY = -(((y + jitterY) / height) - 0.5) * (10 * (height / width)); 
           const webglZ = 0; 
 
           targetPositions[particleIndex * 3] = webglX;

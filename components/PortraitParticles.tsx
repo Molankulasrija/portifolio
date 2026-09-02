@@ -13,7 +13,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function PortraitParticles({ 
   particleCount = 250000,
-  imageSrc = "/srija-portrait.jpg" 
+  imageSrc = "/sriju-stand2.png" 
 }) {
   const materialRef = useRef<THREE.ShaderMaterial>(null);
   const viewport = useThree((state) => state.viewport); 
@@ -183,7 +183,7 @@ export default function PortraitParticles({
           fragmentShader={fragmentShader}
           transparent={true}
           depthWrite={false}
-          blending={THREE.AdditiveBlending}
+          blending={THREE.NormalBlending}
           uniforms={{
             uProgress: { value: 0.0 }, 
             uTime: { value: 0.0 },

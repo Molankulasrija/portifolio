@@ -71,6 +71,7 @@ export default function Dashboard() {
                   src="/Srija-Square.jpg" 
                   alt="Srija Molankula" 
                   fill 
+                  sizes="(max-width: 768px) 100vw, 35vw"
                   className="object-cover opacity-90"
                   priority
                 />

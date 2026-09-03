@@ -146,10 +146,10 @@ export default function PortraitParticles({
     const targetY = (state.pointer.y * viewport.height) / 2;
 
     materialRef.current.uniforms.uMouse.value.x = THREE.MathUtils.lerp(
-      materialRef.current.uniforms.uMouse.value.x, targetX, 0.08
+      materialRef.current.uniforms.uMouse.value.x, targetX, 0.25
     );
     materialRef.current.uniforms.uMouse.value.y = THREE.MathUtils.lerp(
-      materialRef.current.uniforms.uMouse.value.y, targetY, 0.08
+      materialRef.current.uniforms.uMouse.value.y, targetY, 0.25
     );
 
     const targetHover = isHovered.current ? 1 : 0;

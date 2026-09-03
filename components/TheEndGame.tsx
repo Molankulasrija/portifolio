@@ -4,7 +4,7 @@ import MiniGame from "./MiniGame";
 
 export default function TheEndGame() {
   return (
-    <section className="relative w-full h-screen bg-[#050505] text-white flex flex-col items-center justify-center overflow-hidden border-t border-white/5">
+    <section id="contact" className="relative w-full h-screen bg-[#050505] text-white flex flex-col items-center justify-center overflow-hidden border-t border-white/5">
       
       {/* Giant Typography Background */}
       <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none select-none opacity-20 z-0">

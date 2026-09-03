@@ -10,42 +10,47 @@ gsap.registerPlugin(ScrollTrigger);
 const projectsData = [
   { 
     id: "01", 
-    title: "Cognitive Engine", 
-    role: "Lead WebGL Architect", 
-    description: "An interactive 3D cognitive sphere utilizing custom GLSL shaders and matrix math to visualize distributed thought patterns in real-time.",
-    stack: ["Three.js", "GLSL", "React"],
-    link: "https://github.com/sainathmanda7"
+    title: "Fake Profile ID", 
+    role: "Machine Learning / NLP", 
+    description: "Designed an intelligent system to detect fake social media profiles using Machine Learning, Support Vector Machines, and Naive Bayes.",
+    stack: ["Python", "SVM", "NLP"],
+    link: "https://github.com/Molankulasrija/FAKE-PROFILE-IDENTIFICATION"
   },
   { 
     id: "02", 
-    title: "Neural Ledger", 
-    role: "Systems Engineer", 
-    description: "A high-performance distributed ledger built from the ground up to handle 10k+ TPS with cryptographic verification and seamless node discovery.",
-    stack: ["Rust", "gRPC", "Kubernetes"],
-    link: "https://github.com/sainathmanda7"
+    title: "Fitness Analytics", 
+    role: "Data Analyst", 
+    description: "Leveraged data collected from fitness watches to provide users with actionable insights and personalized recommendations to improve health.",
+    stack: ["Python", "Jupyter", "Data Science"],
+    link: "https://github.com/Molankulasrija/Fitness-Watch-Data-Analysis"
   },
   { 
     id: "03", 
-    title: "Aura Analytics", 
-    role: "Frontend Developer", 
-    description: "Enterprise dashboard for real-time telemetry, featuring complex D3 visualizations wrapped in a bespoke glassmorphic UI.",
-    stack: ["Next.js", "GSAP", "Tailwind"],
-    link: "https://github.com/sainathmanda7"
+    title: "Atten-Track", 
+    role: "Java Developer", 
+    description: "A robust Java-based desktop application for managing and tracking student attendance, managing absentees, and generating automated receipts.",
+    stack: ["Java", "Desktop", "Systems"],
+    link: "https://github.com/Molankulasrija/Atten-Track"
   },
   {
     id: "04",
-    title: "Quantum Proxy",
-    role: "Backend Architect",
-    description: "Reverse proxy and load balancer optimizing WebSocket connections for massive multiplayer state synchronization with zero-downtime deployments.",
-    stack: ["Go", "Redis", "Docker"],
-    link: "https://github.com/sainathmanda7"
+    title: "Nav-Aisle",
+    role: "Frontend Developer",
+    description: "A supermarket platform with an integrated route map feature helping consumers locate products quickly and efficiently within the store.",
+    stack: ["HTML", "CSS", "JavaScript"],
+    link: "https://github.com/Molankulasrija/Nav-Aisle"
   }
 ];
 
-const achievements = [
-  { year: "2026", title: "Awwwards Site of the Month", context: "Creative Developer" },
-  { year: "2025", title: "Speaker at WebGL Paris", context: "Advanced Shader Math" },
-  { year: "2024", title: "Lead Systems Architect", context: "Enterprise Migration" }
+const githubRepos = [
+  { year: "2026", title: "AI Mock Interview", context: "TypeScript", link: "https://github.com/Molankulasrija/AI-Mock-Interview" },
+  { year: "2025", title: "Ticket Booking App", context: "Fullstack", link: "https://github.com/Molankulasrija/Ticket_Booking_App" },
+  { year: "2025", title: "Send OTP App", context: "Node.js & Twilio", link: "https://github.com/Molankulasrija/send-otp-to-mobile-number" },
+  { year: "2025", title: "Login Page MongoDB", context: "Backend Auth", link: "https://github.com/Molankulasrija/login-page-mongodb" },
+  { year: "2025", title: "CRUD Operations", context: "JavaScript", link: "https://github.com/Molankulasrija/crud-operations" },
+  { year: "2025", title: "TrieSearch", context: "Data Structures", link: "https://github.com/Molankulasrija/TrieSearch" },
+  { year: "2024", title: "BrainBuster", context: "Interactive UI", link: "https://github.com/Molankulasrija/BrainBuster" },
+  { year: "2024", title: "Sudoku Game", context: "Logic Puzzle", link: "https://github.com/Molankulasrija/SudokuGame" }
 ];
 
 const standingImages = [
@@ -213,7 +218,7 @@ export default function TheArchive() {
   );
 
   return (
-    <section ref={containerRef} className="relative w-full bg-[#050505] text-white overflow-hidden pb-32">
+    <section id="archive" ref={containerRef} className="relative w-full bg-[#050505] text-white overflow-hidden pb-32">
       
       {/* THE ARCHIVE HEADER & AUTO-CYCLING STANDING CUTOUT */}
       <div 
@@ -308,17 +313,20 @@ export default function TheArchive() {
           `}</style>
         </div>
 
-        {/* SECTION II: THE LEDGER */}
+        {/* SECTION II: OPEN SOURCE */}
         <div className="flex flex-col mt-20">
           <h2 className="text-xs md:text-sm font-sans font-light tracking-[0.3em] text-[#c3a682] uppercase mb-16 ml-2">
-            The Ledger
+            Open Source & Repositories
           </h2>
 
           <div className="w-full flex flex-col group/ledger border-t border-white/10">
-            {achievements.map((item, i) => (
-              <div 
+            {githubRepos.map((item, i) => (
+              <a 
                 key={i} 
-                className="w-full flex flex-col md:flex-row md:items-center border-b border-white/10 py-10 transition-opacity duration-500 hover:!opacity-100 group-hover/ledger:opacity-30 cursor-crosshair"
+                href={item.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex flex-col md:flex-row md:items-center border-b border-white/10 py-10 transition-opacity duration-500 hover:!opacity-100 group-hover/ledger:opacity-30 cursor-pointer hover:bg-white/5 px-4"
               >
                 <div className="w-full md:w-[20%] font-mono text-sm text-[#c3a682] tracking-widest mb-3 md:mb-0">
                   {item.year}
@@ -329,7 +337,7 @@ export default function TheArchive() {
                 <div className="w-full md:w-[35%] font-sans font-light text-xs text-zinc-500 tracking-[0.2em] md:text-right uppercase mt-3 md:mt-0">
                   {item.context}
                 </div>
-              </div>
+              </a>
             ))}
           </div>
         </div>

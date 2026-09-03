@@ -14,6 +14,7 @@ export const vertexShader = `
   varying float vAlpha;
   varying float vSizeMultiplier;
   varying float vInLens;
+  varying float vLensEdge;
 
   vec3 curl(vec3 p) {
     return vec3(sin(p.z), cos(p.x), sin(p.y)) * 2.0;
@@ -34,19 +35,29 @@ export const vertexShader = `
     vec3 swirlPath = mix(drift, currentTarget + curl(currentTarget) * 1.5, uProgress);
     vec3 basePos = mix(swirlPath, currentTarget, smoothstep(0.8, 1.0, uProgress));
 
+    // 1 CM Glass Lens Radius (~1.1 WebGL units)
     float dist = distance(basePos.xy, uMouse.xy); 
-    float lensRadius = 1.8; 
-    float lensFactor = 1.0 - smoothstep(lensRadius - 0.2, lensRadius, dist);
-    vInLens = lensFactor * uHover * (1.0 - uMorph); 
+    float lensRadius = 1.1; 
     
-    vec3 zenithPos = mix(basePos, currentTarget, vInLens);
+    // Glass factor inside lens
+    float lensFactor = 1.0 - smoothstep(lensRadius - 0.1, lensRadius, dist);
+    
+    // Outer Glass Lens Ring Outline (for crisp 1cm cursor visibility)
+    float ringWidth = 0.12;
+    vLensEdge = smoothstep(lensRadius - ringWidth, lensRadius, dist) * (1.0 - smoothstep(lensRadius, lensRadius + ringWidth, dist));
+    
+    // Active when portrait is formed (uProgress > 0.5) and before sphere morph (uMorph < 0.8)
+    vInLens = lensFactor * uHover * (1.0 - uMorph) * smoothstep(0.5, 1.0, uProgress); 
+    
+    // Slight 3D z-pop inside glass lens
+    vec3 zenithPos = mix(basePos, basePos + vec3(0.0, 0.0, 0.3), vInLens);
 
     vec3 explodeDir = normalize(zenithPos) + curl(zenithPos * 2.0);
     explodeDir.y += 1.5; 
     float speedMap = random(vec3(45.164, 12.9898, 78.233), 0.0);
     vec3 finalPos = mix(zenithPos, zenithPos + (explodeDir * 15.0 * (speedMap + 0.5)), uDissolve);
 
-    // Apply rotation ONLY to the sphere state
+    // Apply rotation ONLY to sphere state
     float angle = uTime * 0.1 * uMorph;
     mat2 rotY = mat2(cos(angle), -sin(angle), sin(angle), cos(angle));
     finalPos.xz = rotY * finalPos.xz;
@@ -56,53 +67,51 @@ export const vertexShader = `
 
     float depth = -mvPosition.z; 
     
-    // Smoothly transition point size: Large (30.0) for portrait formation, Crisp dots (5.0) for Sphere
+    // Point size: 30.0 for portrait, 5.0 for sphere, enlarged to 38.0 inside glass lens for crystal clear tiling
     float basePointSize = mix(30.0, 5.0, uMorph);
+    basePointSize = mix(basePointSize, 38.0, vInLens);
     gl_PointSize = (basePointSize / depth) * vSizeMultiplier; 
     
-    // ==========================================
-    // THE HEMISPHERE FIX
-    // ==========================================
-    // 1. Portrait Alpha: Uses the original strict camera depth limit
     float portraitAlpha = smoothstep(14.0, 6.0, depth);
-    
-    // 2. Sphere Alpha: High enough to clearly see the sphere shape, low enough not to block Skill Nodes
-    // Max opacity 60% at the front, 15% at the back
     float sphereAlpha = smoothstep(-5.0, 5.0, finalPos.z) * 0.6 + 0.15;
     
-    // 3. Blend between them smoothly as the scroll morph happens
     vAlpha = mix(portraitAlpha, sphereAlpha, uMorph) * (1.0 - uDissolve);
   }
 `;  
 
 export const fragmentShader = `
   uniform float uMorph;
+  uniform float uHover;
   
   varying vec3 vColor;
   varying float vAlpha;
   varying float vSizeMultiplier;
   varying float vInLens;
+  varying float vLensEdge;
 
   void main() {
     vec2 cxy = 2.0 * gl_PointCoord - 1.0;
     float radius = dot(cxy, cxy);
     
-    // Make particles square inside the lens so they tile together like a real photo
+    // Tiled square pixels inside the glass lens for crisp 2D photo rendering
     if (radius > 1.0 && vInLens < 0.5) discard;
 
     float core = exp(-2.5 * radius); 
     float halo = 1.0 - smoothstep(0.0, 1.0, radius);       
     float softness = mix(halo, core, 0.5);
 
-    // Dynamically adjust brightness: High (1.4) for flat portrait, Elegant ambient (0.7) for sphere
+    // Color exposure inside glass lens vs ambient background particles
     float brightnessBoost = mix(1.4, 0.7, uMorph);
-    vec3 finalColor = vColor * brightnessBoost;
-
-    // Inside the lens, we reveal the solid picture
-    float finalSoftness = mix(softness, 1.0, vInLens);
-    float finalAlpha = finalSoftness * vAlpha; 
+    vec3 photoColor = mix(vColor * brightnessBoost, vColor * 1.7, vInLens);
     
-    // Discard completely invisible pixels to optimize rendering speed
+    // Glass Rim Outline Color (Glowing cyan-white glass ring)
+    vec3 glassRimColor = vec3(0.8, 0.95, 1.0) * 2.0;
+    vec3 finalColor = mix(photoColor, glassRimColor, vLensEdge * uHover * (1.0 - uMorph));
+
+    // Inside the lens, reveal 100% solid, ultra-clear picture
+    float finalSoftness = mix(softness, 1.0, vInLens);
+    float finalAlpha = mix(finalSoftness * vAlpha, 1.0, vInLens * 0.9); 
+    
     if (finalAlpha < 0.02) discard;
 
     gl_FragColor = vec4(finalColor, finalAlpha);

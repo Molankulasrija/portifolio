@@ -51,6 +51,7 @@ export default function Dashboard() {
 
   return (
     <section 
+      id="dashboard"
       ref={containerRef} 
       className="relative w-full min-h-screen bg-[#050505] text-white px-6 md:px-12 py-32 z-10 flex justify-center overflow-hidden dashboard-section"
     >

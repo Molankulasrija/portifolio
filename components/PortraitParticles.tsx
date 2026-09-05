@@ -171,10 +171,10 @@ export default function PortraitParticles({
 
       <points>
         <bufferGeometry>
-          <bufferAttribute attach="attributes-position" count={particleCount} array={geometryData.positions} itemSize={3} />
-          <bufferAttribute attach="attributes-targetPosition" count={particleCount} array={geometryData.targets} itemSize={3} />
-          <bufferAttribute attach="attributes-spherePosition" count={particleCount} array={geometryData.sphereTargets} itemSize={3} />
-          <bufferAttribute attach="attributes-color" count={particleCount} array={geometryData.colors} itemSize={3} />
+          <bufferAttribute attach="attributes-position" args={[geometryData.positions, 3]} />
+          <bufferAttribute attach="attributes-targetPosition" args={[geometryData.targets, 3]} />
+          <bufferAttribute attach="attributes-spherePosition" args={[geometryData.sphereTargets, 3]} />
+          <bufferAttribute attach="attributes-color" args={[geometryData.colors, 3]} />
         </bufferGeometry>
         
         <shaderMaterial
